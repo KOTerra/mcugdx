@@ -27,7 +27,7 @@ typedef struct {
 	int samples_collected;
 } Average;
 
-#define MAX_VOLUME 128 // Maximum volume level (0-255)
+#define MAX_VOLUME 60 // Maximum volume level (0-255)
 
 // Add this function before mcugdx_main()
 int gpio_read_average(int pin, Average *state) {
@@ -56,7 +56,7 @@ uint8_t gpio_read_volume(int pin, Average *state, int clamp_value) {
 	if (value < clamp_value) {
 		value = 0;
 	}
-	return value;
+	return MAX_VOLUME - value;
 }
 
 void traverse_directory(mcugdx_file_system_t fs, mcugdx_file_handle_t dir_handle, int depth) {
@@ -296,7 +296,7 @@ extern "C" int mcugdx_main() {
 	mcugdx_audio_set_master_volume(255);
 
 	// Set initial volume based on potentiometer
-	uint8_t volume = gpio_read_volume(VOLUME_POT_PIN, &volume_average, 1);
+	uint8_t volume = MAX_VOLUME; // gpio_read_volume(VOLUME_POT_PIN, &volume_average, 1);
 	mcugdx_audio_set_master_volume(volume);
 	last_volume = volume;
 	mcugdx_log(TAG, "Initial volume: %d", volume);
@@ -310,6 +310,8 @@ extern "C" int mcugdx_main() {
 	mcugdx_sound_id_t startup_sound_id = mcugdx_sound_play(startup_sound, 255, 127, MCUGDX_SINGLE_SHOT);
 	while(mcugdx_sound_is_playing(startup_sound_id)) {
 		mcugdx_sleep(100);
+		volume = gpio_read_volume(VOLUME_POT_PIN, &volume_average, 1);
+		mcugdx_log(TAG, "Initial volume: %d", volume);
 	}
 	mcugdx_sleep(500);
 
