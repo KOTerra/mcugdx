@@ -2,5 +2,9 @@
     "idf.adapterTargetName": "esp32s3",
     "cmake.buildDirectory": "${workspaceFolder}/build-desktop",
     "idf.flashType": "UART",
-    "idf.port": "/dev/cu.usbmodem1101"
+    "idf.port": "/dev/cu.usbmodem1101",
+    "idf.espIdfPathWin": "C:\\Users\\miche\\esp\\v5.5.1\\esp-idf",
+    "idf.toolsPathWin": "C:\\Users\\miche\\.espressif",
+    "idf.pythonInstallPath": "C:\\Users\\miche\\.espressif\\tools\\idf-python\\3.11.2\\python.exe",
+    "idf.portWin": "COM10"
 }

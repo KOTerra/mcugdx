@@ -1,3 +1,4 @@
+#include "esp_log.h"
 
 #include "mcugdx.h"
 #include "doomgeneric/doomgeneric.h"
@@ -19,11 +20,11 @@ mcugdx_display_config_t display_config = {
 		.driver = MCUGDX_ST7789,
 		.native_width = 240,
 		.native_height = 320,
-		.mosi = 3,
-		.sck = 4,
-		.dc = 2,
-		.cs = 1,
-		.reset = 5};
+		.mosi = 11,//SDA
+		.sck = 13,
+		.dc = 8,
+		.cs = 10,
+		.reset = 9};
 #else
 // ILI9341 2,8" 240x320
 mcugdx_display_config_t display_config = {
@@ -36,6 +37,18 @@ mcugdx_display_config_t display_config = {
 		.cs = 1,
 		.reset = 5};
 #endif
+
+
+mcugdx_sound_t *mcugdx_sound_load_raw(
+		int16_t *frames,
+		uint32_t num_frames,
+		mcugdx_audio_channels_t channels,
+		uint32_t sample_rate,
+		mcugdx_memory_type_t memory_type) {
+	// Temporary stub: no real sound loading yet
+	return NULL;
+}
+
 
 typedef struct {
 	wad_file_t wad;
@@ -56,17 +69,42 @@ static wad_file_t *doom_rofs_open_file(char *path) {
 	return &result->wad;
 }
 
+#include <stddef.h>// for size_t (if not already included by your headers)
+
+/* ... earlier code ... */
+
 static void doom_rofs_close_file(wad_file_t *wad) {
-	rofs_wad_file_t *rofs_wad;
-	rofs_wad = (rofs_wad_file_t *) wad;
-	mcugdx_mem_free(rofs_wad);
+	rofs_wad_file_t *rofs_wad = (rofs_wad_file_t *) wad;
+	if (rofs_wad) {
+		/* close the underlying rofs handle (if api provides close) */
+		if (mcugdx_rofs.close) {
+			mcugdx_rofs.close(rofs_wad->handle);
+		}
+		mcugdx_mem_free(rofs_wad);
+	}
 }
 
-size_t doom_rofs_read(wad_file_t *wad, unsigned int offset,
-					  void *buffer, size_t buffer_len) {
+/* Correct signature and return type to match wad_file_class_t:
+   size_t doom_rofs_read(wad_file_t *wad, unsigned int offset, void *buffer, size_t buffer_len)
+*/
+static size_t doom_rofs_read(wad_file_t *wad, unsigned int offset, void *buffer, size_t buffer_len) {
 	rofs_wad_file_t *rofs_wad = (rofs_wad_file_t *) wad;
-	return mcugdx_rofs.read(rofs_wad->handle, offset, buffer, buffer_len);
+
+	/* Seek must be called with the correct number of args for mcugdx_rofs.seek.
+       Remove the extra `0` that caused "too many arguments". */
+	if (mcugdx_rofs.seek) {
+		/* many seek APIs are (handle, offset) — adapt if yours differs */
+		mcugdx_rofs.seek(rofs_wad->handle, offset);
+	}
+
+	/* mcugdx_rofs.read(handle, buffer, buffer_len) — this matches how you use it below */
+	if (mcugdx_rofs.read) {
+		return mcugdx_rofs.read(rofs_wad->handle, buffer, buffer_len);
+	}
+
+	return 0;
 }
+
 
 wad_file_class_t rofs_wad_file = {
 		doom_rofs_open_file,
@@ -226,7 +264,7 @@ int DG_GetKey(int *pressed, unsigned char *doomKey) {
 	mcugdx_button_event_t event;
 	if (mcugdx_button_get_event(&event)) {
 		*pressed = event.type == MCUGDX_BUTTON_PRESSED ? -1 : 0;
-		switch(event.keycode) {
+		switch (event.keycode) {
 			case MCUGDX_KEY_ESCAPE:
 				*doomKey = KEY_ESCAPE;
 				break;
@@ -260,24 +298,29 @@ int DG_GetKey(int *pressed, unsigned char *doomKey) {
 	}
 }
 int mcugdx_main() {
+	ESP_LOGI("MAIN", "Testing printf and logging...");
+	printf("Hello from ESP32!\n");
+
 	mcugdx_init();
 	mcugdx_display_init(&display_config);
+	// mcugdx_fill_screen(MCUGDX_COLOR_RED);
+
 	mcugdx_display_set_orientation(MCUGDX_LANDSCAPE);
 	mcugdx_rofs_init();
-	mcugdx_audio_init(&(mcugdx_audio_config_t){
+	mcugdx_audio_init(&(mcugdx_audio_config_t) {
 			.channels = 2,
 			.sample_rate = 11025,
 			.bclk = 47,
 			.ws = 21,
 			.dout = 38});
-    mcugdx_button_create(10, DEBOUNCE_TIME, MCUGDX_KEY_K);
-    mcugdx_button_create(9, DEBOUNCE_TIME, MCUGDX_KEY_L);
-    mcugdx_button_create(8, DEBOUNCE_TIME, MCUGDX_KEY_ESCAPE);
-    mcugdx_button_create(7, DEBOUNCE_TIME, MCUGDX_KEY_ENTER);
-    mcugdx_button_create(6, DEBOUNCE_TIME, MCUGDX_KEY_D);
-    mcugdx_button_create(12, DEBOUNCE_TIME, MCUGDX_KEY_S);
-    mcugdx_button_create(13, DEBOUNCE_TIME, MCUGDX_KEY_A);
-    mcugdx_button_create(14, DEBOUNCE_TIME, MCUGDX_KEY_W);
+	mcugdx_button_create(10, DEBOUNCE_TIME, MCUGDX_KEY_K);
+	mcugdx_button_create(9, DEBOUNCE_TIME, MCUGDX_KEY_L);
+	mcugdx_button_create(8, DEBOUNCE_TIME, MCUGDX_KEY_ESCAPE);
+	mcugdx_button_create(7, DEBOUNCE_TIME, MCUGDX_KEY_ENTER);
+	mcugdx_button_create(6, DEBOUNCE_TIME, MCUGDX_KEY_D);
+	mcugdx_button_create(12, DEBOUNCE_TIME, MCUGDX_KEY_S);
+	mcugdx_button_create(13, DEBOUNCE_TIME, MCUGDX_KEY_A);
+	mcugdx_button_create(14, DEBOUNCE_TIME, MCUGDX_KEY_W);
 
 	char *args[] = {"doomgeneric", "-iwad", "Doom1.WAD", "-mmap"};
 	doomgeneric_Create(4, args);
