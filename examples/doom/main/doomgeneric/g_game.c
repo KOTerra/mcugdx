@@ -1588,6 +1588,7 @@ void G_DoLoadGame (void)
     	R_ExecuteSetViewSize ();
     
     // draw the pattern into the back screen
+    
     R_FillBackScreen (); 
 } 
  
@@ -2212,6 +2213,7 @@ void G_DoPlayDemo (void)
 
     usergame = false; 
     demoplayback = true; 
+    printf ("Playing demo %s\n",defdemoname);
 } 
 
 //

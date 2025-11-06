@@ -411,9 +411,11 @@ void doomgeneric_Tick()
 
     S_UpdateSounds (players[consoleplayer].mo);// move positional sounds
 
+    printf("doomgeneric_Tick completed TryRunTics and S_UpdateSounds...\n");
     // Update display, next frame, with current state.
     if (screenvisible)
     {
+        printf("D_Display called from doomgeneric_Tick...\n");
         D_Display ();
     }
 }
@@ -437,6 +439,7 @@ void D_DoomLoop (void)
 
     main_loop_started = true;
 
+    printf("Main loop started= true...\n");
     TryRunTics();
 
     I_SetWindowTitle(gamedescription);
@@ -1834,12 +1837,14 @@ void D_DoomMain (void)
 
     if (gameaction != ga_loadgame )
     {
-		if (autostart || netgame)
+		if (autostart || netgame|| true){
 			G_InitNew (startskill, startepisode, startmap);
+           // printf("Autostarting new game...\n");
+        }
 		else
 			D_StartTitle ();                // start up intro loop
     }
-
+   // printf("Entering main game loop...\n");
     D_DoomLoop ();
 }
 

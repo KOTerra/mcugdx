@@ -249,6 +249,7 @@ void DG_DrawFrame(void) {
 		}
 	}
 	last_frame_time = mcugdx_time();
+	printf("main.c Frame drawn: %d\n", frames);
 }
 
 uint32_t DG_GetTicksMs() {
@@ -303,8 +304,15 @@ int mcugdx_main() {
 
 	mcugdx_init();
 	mcugdx_display_init(&display_config);
-	// mcugdx_fill_screen(MCUGDX_COLOR_RED);
-
+	while(1) {
+		mcugdx_display_clear_color(MCUGDX_BLUE);
+		mcugdx_display_show();
+		mcugdx_sleep(1000);
+		mcugdx_display_clear_color(MCUGDX_RED);
+		mcugdx_display_show();
+		mcugdx_sleep(1000);	
+		printf("color drawn:\n");
+	}
 	mcugdx_display_set_orientation(MCUGDX_LANDSCAPE);
 	mcugdx_rofs_init();
 	mcugdx_audio_init(&(mcugdx_audio_config_t) {
@@ -327,6 +335,7 @@ int mcugdx_main() {
 	mcugdx_log(TAG, "Game created");
 	while (true) {
 		doomgeneric_Tick();
+		printf("Frame drawn:\n");
 	}
 
 	return 0;
