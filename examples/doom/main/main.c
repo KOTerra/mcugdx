@@ -17,15 +17,14 @@
 // Big & Little blue fucker
 #if 1
 mcugdx_display_config_t display_config = {
-    .driver = MCUGDX_ST7789,
-    .native_width = 240,
-    .native_height = 320,
-    .mosi = 13,   // SDA in your Adafruit sketch
-    .sck  = 18,   // SCLK
-    .dc   = 2,
-    .cs   = 15,
-    .reset= 4
-};
+		.driver = MCUGDX_ST7789,
+		.native_width = 240,
+		.native_height = 320,
+		.mosi = 13,// SDA in your Adafruit sketch
+		.sck = 18, // SCLK
+		.dc = 2,
+		.cs = 15,
+		.reset = 4};
 
 #else
 // ILI9341 2,8" 240x320
@@ -312,7 +311,7 @@ int mcugdx_main() {
 	// 	mcugdx_sleep(1000);
 	// 	mcugdx_display_clear_color(MCUGDX_RED);
 	// 	mcugdx_display_show();
-	// 	mcugdx_sleep(1000);	
+	// 	mcugdx_sleep(1000);
 	// 	printf("color drawn:\n");
 	// }
 	mcugdx_display_set_orientation(MCUGDX_LANDSCAPE);
@@ -323,14 +322,15 @@ int mcugdx_main() {
 			.bclk = 47,
 			.ws = 21,
 			.dout = 38});
-	mcugdx_button_create(10, DEBOUNCE_TIME, MCUGDX_KEY_K);
-	mcugdx_button_create(9, DEBOUNCE_TIME, MCUGDX_KEY_L);
-	mcugdx_button_create(8, DEBOUNCE_TIME, MCUGDX_KEY_ESCAPE);
-	mcugdx_button_create(7, DEBOUNCE_TIME, MCUGDX_KEY_ENTER);
-	mcugdx_button_create(6, DEBOUNCE_TIME, MCUGDX_KEY_D);
-	mcugdx_button_create(12, DEBOUNCE_TIME, MCUGDX_KEY_S);
-	mcugdx_button_create(13, DEBOUNCE_TIME, MCUGDX_KEY_A);
-	mcugdx_button_create(14, DEBOUNCE_TIME, MCUGDX_KEY_W);
+	mcugdx_button_create(5, DEBOUNCE_TIME, MCUGDX_KEY_K);
+	mcugdx_button_create(6, DEBOUNCE_TIME, MCUGDX_KEY_L);
+	mcugdx_button_create(7, DEBOUNCE_TIME, MCUGDX_KEY_ESCAPE);
+	mcugdx_button_create(8, DEBOUNCE_TIME, MCUGDX_KEY_ENTER);
+	mcugdx_button_create(9, DEBOUNCE_TIME, MCUGDX_KEY_D);
+	mcugdx_button_create(10, DEBOUNCE_TIME, MCUGDX_KEY_S);
+	mcugdx_button_create(11, DEBOUNCE_TIME, MCUGDX_KEY_A);
+	mcugdx_button_create(12, DEBOUNCE_TIME, MCUGDX_KEY_W);
+
 
 	char *args[] = {"doomgeneric", "-iwad", "Doom1.WAD", "-mmap"};
 	doomgeneric_Create(4, args);
