@@ -200,7 +200,6 @@ void setup() {
 }
 
 void loop() {
-    // Check for controller updates
     bool dataUpdated = BP32.update();
     
     if (dataUpdated) {
@@ -211,6 +210,6 @@ void loop() {
         }
     }
     
-    // A small delay to keep things running smoothly, though Bluepad32 handles timing well.
+
     delay(150); 
 }
